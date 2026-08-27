@@ -20,7 +20,7 @@ BoardLink 把这条连接和命令传输过程封装起来，让你可以直接�
         ↓
 开发板执行命令
         ↓
-结果返回到 Windows
+结果返回到本地电脑
 ```
 
 它是一个“远程控制通道”，不是人工智能模型，也不是 RKNN 转换工具。
@@ -81,65 +81,45 @@ boardlink "python3 /root/hello.py"
 电脑上的程序 → 上传到开发板 → 开发板运行 → 返回运行结果
 ```
 
-## 在 macOS 和 MobaXterm 中使用
+## macOS 和 MobaXterm 的最简配置
 
-项目提供了跨平台的 Bash 入口脚本 `boardlink`。它可以在 macOS 的“终端”、Linux 终端，以及 MobaXterm 的本地终端中使用。
+项目提供了跨平台的 Bash 入口脚本 `boardlink`，可以在 macOS 的“终端”、Linux 终端，以及 MobaXterm 的本地终端中使用。
 
-### macOS
-
-macOS 通常已经自带 SSH 和 SCP。进入项目目录后设置连接信息：
+第一次使用时，先在项目目录执行：
 
 ```bash
-export BOARDLINK_USER=root
-export BOARDLINK_HOST=192.168.1.179
 chmod +x boardlink
 ```
 
-然后使用：
+然后保存开发板连接信息和 PATH。macOS：
 
 ```bash
-./boardlink "uname -a"
-./boardlink "df -h"
-./boardlink upload "$HOME/Desktop/hello.py" "/root/hello.py"
+echo 'export BOARDLINK_USER=root' >> ~/.zshrc
+echo 'export BOARDLINK_HOST=192.168.1.179' >> ~/.zshrc
+echo 'export PATH="$PATH:$HOME/BoardLink"' >> ~/.zshrc
+source ~/.zshrc
 ```
 
-如果希望在任意目录直接输入 `boardlink`，可以把项目目录加入 PATH：
+MobaXterm：
 
 ```bash
-export PATH="$PATH:$HOME/BoardLink"
+echo 'export BOARDLINK_USER=root' >> ~/.bashrc
+echo 'export BOARDLINK_HOST=192.168.1.179' >> ~/.bashrc
+echo 'export PATH="$PATH:/drives/c/Users/你的用户名/Documents/ChatGPT/boardlink"' >> ~/.bashrc
+source ~/.bashrc
+```
+
+其中 `192.168.1.179` 请替换成开发板实际 IP 地址。
+
+配置完成后，直接使用：
+
+```bash
 boardlink "uname -a"
+boardlink "df -h"
+boardlink upload "/drives/c/Users/你的用户名/Desktop/hello.py" "/root/hello.py"
 ```
 
-也可以把这行 `export PATH=...` 写入 `~/.zshrc`，以后每次打开终端都能直接使用。
-
-### MobaXterm
-
-MobaXterm 使用下面的同一套 Bash 入口脚本：
-
-进入项目目录后先设置连接信息：
-
-```bash
-export BOARDLINK_USER=root
-export BOARDLINK_HOST=192.168.1.179
-chmod +x boardlink
-```
-
-然后使用：
-
-```bash
-./boardlink "uname -a"
-./boardlink "df -h"
-./boardlink upload "/drives/c/Users/你的用户名/Desktop/hello.py" "/root/hello.py"
-```
-
-如果希望在任意目录直接输入 `boardlink`，可以把项目目录加入当前 MobaXterm 会话的 PATH：
-
-```bash
-export PATH="$PATH:/drives/c/Users/你的用户名/Documents/ChatGPT/boardlink"
-boardlink "uname -a"
-```
-
-MobaXterm 中的 Windows 磁盘通常以 `/drives/c/`、`/drives/d/` 这样的路径表示。
+macOS 中的本地文件可以使用 `$HOME/Desktop/hello.py`。MobaXterm 中的 Windows 磁盘通常以 `/drives/c/`、`/drives/d/` 这样的路径表示。
 
 ## 使用前准备
 
