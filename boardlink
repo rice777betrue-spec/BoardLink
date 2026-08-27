@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+
+# BoardLink Bash entry point for MobaXterm and other Bash terminals.
+# Required environment variables:
+#   export BOARDLINK_USER=root
+#   export BOARDLINK_HOST=192.168.1.179
+
+set -u
+
+if [[ -z "${BOARDLINK_USER:-}" || -z "${BOARDLINK_HOST:-}" ]]; then
+    echo "BoardLink is not configured."
+    echo "Run: export BOARDLINK_USER=root"
+    echo "Run: export BOARDLINK_HOST=192.168.1.179"
+    exit 2
+fi
+
+target="${BOARDLINK_USER}@${BOARDLINK_HOST}"
+
+if [[ "${1:-}" == "upload" ]]; then
+    if [[ "$#" -ne 3 ]]; then
+        echo 'Usage: boardlink upload "local-file" "board-path"'
+        exit 2
+    fi
+
+    local_file="$2"
+    board_path="$3"
+
+    if [[ ! -f "$local_file" ]]; then
+        echo "Local file not found: $local_file"
+        exit 1
+    fi
+
+    echo "Uploading to ${target}:${board_path} ..."
+    scp "$local_file" "${target}:${board_path}"
+    status=$?
+    if [[ $status -ne 0 ]]; then
+        echo "Upload failed. Exit code: $status"
+        exit "$status"
+    fi
+
+    echo "Upload completed."
+    exit 0
+fi
+
+if [[ "$#" -lt 1 ]]; then
+    echo 'Usage: boardlink "command"'
+    echo '   or: boardlink upload "local-file" "board-path"'
+    exit 2
+fi
+
+echo "Connecting to ${target} ..."
+ssh "$target" "$@"
+status=$?
+if [[ $status -ne 0 ]]; then
+    echo "Command failed. Exit code: $status"
+    exit "$status"
+fi
+
+echo "Command completed."

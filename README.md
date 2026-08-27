@@ -1,6 +1,6 @@
 # BoardLink
 
-BoardLink 是一个面向 Codex 使用场景的 Windows 命令行工具，用来通过 SSH 控制 Linux 开发板。
+BoardLink 是一个面向 Codex 使用场景的跨平台命令行工具，用来通过 SSH 控制 Linux 开发板。
 当前版本已经可以连接 RK3578/RK3576 类开发板，执行命令、上传文件和运行程序。
 
 它的目标是成为 Codex 与开发板之间的执行桥梁：用户可以用自然语言告诉 Codex 想在开发板上完成什么，Codex 再调用 BoardLink，把命令发送到开发板执行。
@@ -81,10 +81,71 @@ boardlink "python3 /root/hello.py"
 电脑上的程序 → 上传到开发板 → 开发板运行 → 返回运行结果
 ```
 
+## 在 macOS 和 MobaXterm 中使用
+
+项目提供了跨平台的 Bash 入口脚本 `boardlink`。它可以在 macOS 的“终端”、Linux 终端，以及 MobaXterm 的本地终端中使用。
+
+### macOS
+
+macOS 通常已经自带 SSH 和 SCP。进入项目目录后设置连接信息：
+
+```bash
+export BOARDLINK_USER=root
+export BOARDLINK_HOST=192.168.1.179
+chmod +x boardlink
+```
+
+然后使用：
+
+```bash
+./boardlink "uname -a"
+./boardlink "df -h"
+./boardlink upload "$HOME/Desktop/hello.py" "/root/hello.py"
+```
+
+如果希望在任意目录直接输入 `boardlink`，可以把项目目录加入 PATH：
+
+```bash
+export PATH="$PATH:$HOME/BoardLink"
+boardlink "uname -a"
+```
+
+也可以把这行 `export PATH=...` 写入 `~/.zshrc`，以后每次打开终端都能直接使用。
+
+### MobaXterm
+
+MobaXterm 使用下面的同一套 Bash 入口脚本：
+
+进入项目目录后先设置连接信息：
+
+```bash
+export BOARDLINK_USER=root
+export BOARDLINK_HOST=192.168.1.179
+chmod +x boardlink
+```
+
+然后使用：
+
+```bash
+./boardlink "uname -a"
+./boardlink "df -h"
+./boardlink upload "/drives/c/Users/你的用户名/Desktop/hello.py" "/root/hello.py"
+```
+
+如果希望在任意目录直接输入 `boardlink`，可以把项目目录加入当前 MobaXterm 会话的 PATH：
+
+```bash
+export PATH="$PATH:/drives/c/Users/你的用户名/Documents/ChatGPT/boardlink"
+boardlink "uname -a"
+```
+
+MobaXterm 中的 Windows 磁盘通常以 `/drives/c/`、`/drives/d/` 这样的路径表示。
+
 ## 使用前准备
 
-- Windows PowerShell
+- Windows PowerShell、macOS 终端，或 MobaXterm
 - Windows 自带或已安装的 OpenSSH（包含 `ssh` 和 `scp`）
+- macOS/Linux 通常已经自带 `ssh` 和 `scp`
 - 一块可以联网的 Linux 开发板
 - 已经配置好的 SSH 密钥登录
 
