@@ -104,18 +104,6 @@ $env:BOARDLINK_HOST = "192.168.1.179"
 
 上面的 IP 只是示例，请替换成你自己的地址。
 
-## 和 RKNN 的关系
-
-普通的 Python、C/C++、Shell 程序不需要转换成 `.rknn`。
-
-`.rknn` 主要用于将人工智能模型转换为 Rockchip NPU 可以运行的格式：
-
-```text
-PyTorch / ONNX 模型 → RKNN 模型 → RK3578 NPU 加速运行
-```
-
-BoardLink 负责传输和执行，不负责模型转换。
-
 ## 安全注意事项
 
 - 不要把 SSH 私钥、密码提交到公开仓库。
