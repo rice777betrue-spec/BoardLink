@@ -1,0 +1,145 @@
+BoardLink 技术文档
+==================
+
+一、项目定位
+------------
+
+BoardLink 是一个面向 Codex 使用场景的跨平台命令行工具。
+它不负责理解自然语言，也不是人工智能模型，而是负责把本地电脑上的命令发送到远程 Linux 开发板执行，并把结果返回。
+
+典型流程：
+
+用户提出任务
+    -> Codex 理解任务并生成命令
+    -> BoardLink 接收命令
+    -> BoardLink 使用 SSH 连接开发板
+    -> 开发板执行命令
+    -> 结果返回给 Codex
+
+BoardLink 不是 Codex 官方产品，也不包含 Codex 模型本身。
+
+二、当前版本功能
+----------------
+
+1. 远程执行命令
+   例如：
+   boardlink "uname -a"
+   boardlink "hostname"
+   boardlink "df -h"
+
+2. 上传文件
+   通过 SCP 把本地文件上传到开发板：
+   boardlink upload "本地文件路径" "/root/目标文件路径"
+
+3. 运行程序
+   文件上传后，可以通过 SSH 在开发板上运行：
+   boardlink "python3 /root/hello.py"
+
+4. 多平台入口
+   Windows 使用 boardlink.cmd。
+   macOS、Linux 和 MobaXterm 使用无扩展名的 boardlink Bash 脚本。
+
+三、项目文件说明
+----------------
+
+boardlink
+    Bash 入口脚本，适用于 macOS、Linux 和 MobaXterm。
+    负责读取配置、调用 ssh/scp、执行命令和上传文件。
+
+boardlink.cmd
+    Windows 命令入口。用户输入 boardlink 时由它启动 PowerShell 核心脚本。
+
+BoardLink-impl.ps1
+    Windows PowerShell 核心实现，负责远程命令执行和文件上传。
+
+README.md
+    简短的项目介绍和快速使用说明。
+
+技术文档.txt
+    当前版本的技术说明、配置方式和后续开发参考。
+
+.gitignore
+    防止 SSH 私钥、密钥文件和测试文件被提交到公开仓库。
+
+四、连接配置
+------------
+
+BoardLink 使用两个环境变量：
+
+BOARDLINK_USER
+    开发板上的登录用户名，例如 root。
+
+BOARDLINK_HOST
+    开发板的 IP 地址或主机名，例如 192.168.1.179。
+
+Windows PowerShell：
+
+    $env:BOARDLINK_USER = "root"
+    $env:BOARDLINK_HOST = "开发板IP地址"
+
+macOS/Linux/MobaXterm：
+
+    export BOARDLINK_USER=root
+    export BOARDLINK_HOST=开发板IP地址
+
+如果希望永久保存，可以把对应配置写入：
+
+macOS/Linux：~/.zshrc 或 ~/.bashrc
+MobaXterm：~/.bashrc
+
+五、命令搜索路径 PATH
+--------------------
+
+在当前目录执行脚本时，需要写：
+
+    ./boardlink "uname -a"
+
+把项目目录加入 PATH 后，就可以省略 ./：
+
+    boardlink "uname -a"
+
+例如 MobaXterm 可以把下面内容加入 ~/.bashrc：
+
+    export PATH="$PATH:/drives/c/Users/你的用户名/Documents/ChatGPT/boardlink"
+
+macOS 可以把项目实际目录加入 ~/.zshrc。
+
+六、运行依赖
+------------
+
+本地电脑需要：
+
+1. Windows PowerShell，或 macOS/Linux/MobaXterm 的 Bash。
+2. ssh 命令。
+3. scp 命令。
+4. 已联网的 Linux 开发板。
+5. 已配置好的 SSH 密钥登录。
+
+BoardLink 不要求把普通 Python、Shell 或 C/C++ 程序转换成特殊格式才能执行。
+它只负责传输和执行，具体程序能否运行取决于开发板上的运行环境。
+
+七、当前实现特点
+----------------
+
+1. 使用环境变量保存连接地址和用户名，不把个人配置写死在公开代码中。
+2. 使用系统自带的 ssh 和 scp，不在项目中重复实现 SSH 协议。
+3. 命令执行失败时返回错误码，便于 Codex 判断下一步操作。
+4. 上传前检查本地文件是否存在。
+5. Windows 和 Bash 使用不同入口，但提供相同的基本命令格式。
+
+八、安全注意事项
+----------------
+
+1. 不要提交 SSH 私钥、密码、令牌或包含敏感信息的配置文件。
+2. BoardLink 执行的命令会真实影响开发板，执行删除、覆盖和安装操作前要确认。
+3. 建议使用权限受控的开发板账户，不要在不必要时使用 root。
+4. 公开仓库中的示例 IP 仅用于说明，使用时应替换成自己的地址。
+
+九、后续开发方向
+----------------
+
+1. 增加下载文件功能。
+2. 增加日志查看和持续追踪功能。
+3. 增加命令确认机制，降低误操作风险。
+4. 增加连接失败重试和更清晰的错误提示。
+5. 增加更标准的 Codex 专用工具接口，使 Codex 调用更加自动化。
