@@ -7,6 +7,50 @@
 
 set -u
 
+if [[ "${1:-}" == "doctor" ]]; then
+    failed=0
+    echo "BoardLink diagnosis"
+
+    if command -v ssh >/dev/null 2>&1; then
+        echo "[OK] ssh is available"
+    else
+        echo "[FAIL] ssh was not found"
+        failed=1
+    fi
+
+    if command -v scp >/dev/null 2>&1; then
+        echo "[OK] scp is available"
+    else
+        echo "[FAIL] scp was not found"
+        failed=1
+    fi
+
+    if [[ -z "${BOARDLINK_USER:-}" || -z "${BOARDLINK_HOST:-}" ]]; then
+        echo "[FAIL] BOARDLINK_USER or BOARDLINK_HOST is not configured"
+        failed=1
+    else
+        target="${BOARDLINK_USER}@${BOARDLINK_HOST}"
+        echo "Checking SSH connection to ${target} ..."
+        remote_info=$(ssh -o BatchMode=yes -o ConnectTimeout=5 "$target" "uname -a" 2>&1)
+        status=$?
+        if [[ $status -eq 0 ]]; then
+            echo "[OK] SSH connection"
+            echo "      $remote_info"
+        else
+            echo "[FAIL] SSH connection"
+            echo "      $remote_info"
+            failed=1
+        fi
+    fi
+
+    if [[ $failed -eq 0 ]]; then
+        echo "Diagnosis completed: all checks passed."
+        exit 0
+    fi
+    echo "Diagnosis completed: some checks failed."
+    exit 1
+fi
+
 if [[ -z "${BOARDLINK_USER:-}" || -z "${BOARDLINK_HOST:-}" ]]; then
     echo "BoardLink is not configured."
     echo "Run: export BOARDLINK_USER=root"
