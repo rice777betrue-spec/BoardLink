@@ -31,15 +31,19 @@ BoardLink 不是 Codex 官方产品，也不包含 Codex 模型本身。
    通过 SCP 把本地文件上传到开发板：
    boardlink upload "本地文件路径" "/root/目标文件路径"
 
-3. 运行程序
+3. 下载文件
+   通过 SCP 把开发板文件下载到本地：
+   boardlink download "/root/远程文件路径" "本地文件路径"
+
+4. 运行程序
    文件上传后，可以通过 SSH 在开发板上运行：
    boardlink "python3 /root/hello.py"
 
-4. 多平台入口
+5. 多平台入口
    Windows 使用 boardlink.cmd。
    macOS、Linux 和 MobaXterm 使用无扩展名的 boardlink Bash 脚本。
 
-5. 环境诊断
+6. 环境诊断
    使用 boardlink doctor 检查 ssh、scp、环境变量和 SSH 连接。
    该命令只检查环境和读取开发板系统信息，不会修改开发板文件。
 

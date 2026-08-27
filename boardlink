@@ -86,9 +86,31 @@ if [[ "${1:-}" == "upload" ]]; then
     exit 0
 fi
 
+if [[ "${1:-}" == "download" ]]; then
+    if [[ "$#" -ne 3 ]]; then
+        echo 'Usage: boardlink download "board-file" "local-file"'
+        exit 2
+    fi
+
+    board_file="$2"
+    local_file="$3"
+
+    echo "Downloading ${target}:${board_file} ..."
+    scp "${target}:${board_file}" "$local_file"
+    status=$?
+    if [[ $status -ne 0 ]]; then
+        echo "Download failed. Exit code: $status"
+        exit "$status"
+    fi
+
+    echo "Download completed."
+    exit 0
+fi
+
 if [[ "$#" -lt 1 ]]; then
     echo 'Usage: boardlink "command"'
     echo '   or: boardlink upload "local-file" "board-path"'
+    echo '   or: boardlink download "board-file" "local-file"'
     exit 2
 fi
 

@@ -86,6 +86,29 @@ if ($Command -eq "upload") {
     exit 0
 }
 
+# Download a file from the board:
+# boardlink download "/var/log/app.log" "C:\path\app.log"
+if ($Command -eq "download") {
+    if ($Arguments.Count -ne 2) {
+        Write-Host 'Usage: boardlink download "board-file" "local-file"' -ForegroundColor Yellow
+        exit 2
+    }
+
+    $BoardFile = $Arguments[0]
+    $LocalFile = $Arguments[1]
+
+    Write-Host "Downloading $Target`:$BoardFile ..." -ForegroundColor Cyan
+    & scp "${Target}:$BoardFile" $LocalFile
+
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "Download failed. Exit code: $LASTEXITCODE" -ForegroundColor Red
+        exit $LASTEXITCODE
+    }
+
+    Write-Host "Download completed." -ForegroundColor Green
+    exit 0
+}
+
 Write-Host "Connecting to $Target ..." -ForegroundColor Cyan
 & ssh $Target $Command
 

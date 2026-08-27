@@ -13,6 +13,7 @@ Codex → BoardLink → SSH → Linux 开发板
 
 - 执行开发板命令
 - 上传本地文件
+- 下载开发板文件
 - 运行开发板上的程序
 - 返回执行结果，方便 Codex 继续工作
 - 检查本地环境和开发板连接
@@ -23,6 +24,7 @@ Codex → BoardLink → SSH → Linux 开发板
 boardlink "uname -a"
 boardlink "df -h"
 boardlink upload "本地文件路径" "/root/目标路径"
+boardlink download "/root/远程文件路径" "本地文件路径"
 boardlink "python3 /root/hello.py"
 boardlink doctor
 ```
